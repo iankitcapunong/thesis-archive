@@ -1,0 +1,27 @@
+node_modules/
+.next/
+out/
+build/
+
+# Local database
+*.db
+*.db-journal
+prisma/dev.db*
+
+# Uploaded thesis documents — institutional records, never committed
+storage/
+
+# Environment secrets (NFR-09)
+.env
+.env.local
+.env.production
+
+# Editor / OS
+.DS_Store
+Thumbs.db
+*.log
+.vscode/
+.idea/
+
+next-env.d.ts
+tsconfig.tsbuildinfo

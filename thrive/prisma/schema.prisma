@@ -1,0 +1,329 @@
+// =============================================================================
+// Project THRIVE - Thesis Hub for Research, Innovation, Validation & Evaluation
+// Caraga State University
+//
+// Data model implementing SRS 4.5.1 (Core Data Entities) and 4.5.2 (Data
+// Relationships). Provider is SQLite for local development; switch `provider`
+// to "postgresql" and update DATABASE_URL for institutional deployment
+// (SRS 2.6 - Deployment Flexibility).
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// -----------------------------------------------------------------------------
+// Enumerations (SQLite has no native enums - modelled as validated strings)
+// -----------------------------------------------------------------------------
+// Role            : ADMIN | RESEARCH_COORDINATOR | DEPARTMENT_CHAIR |
+//                   COLLEGE_ADMIN | FACULTY_ADVISER | PANEL_MEMBER | STUDENT
+// UserStatus      : ACTIVE | INACTIVE | PENDING
+// ThesisStatus    : DRAFT | ACTIVE | COMPLETED | ARCHIVED | WITHDRAWN
+// StageKey        : PROPOSAL_DEVELOPMENT | PROPOSAL_DEFENSE | REVISION |
+//                   FINAL_DEVELOPMENT | FINAL_DEFENSE | COMPLETED
+// MilestoneStatus : LOCKED | IN_PROGRESS | SUBMITTED | APPROVED
+// DocumentStatus  : PENDING | UNDER_REVIEW | APPROVED | REVISE | REJECTED
+// Decision        : APPROVED | REVISE | REJECTED
+// RequestStatus   : PENDING | ACCEPTED | REJECTED | CANCELLED
+// DefenseType     : PROPOSAL | FINAL
+// DefenseStatus   : SCHEDULED | COMPLETED | CANCELLED | RESCHEDULED
+// -----------------------------------------------------------------------------
+
+/// SRS 4.5.1 - Users. Identity, authentication and profile information for
+/// every stakeholder class described in SRS 2.4.
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  firstName    String
+  lastName     String
+  role         String
+  status       String    @default("ACTIVE")
+  schoolId     String? // student number or employee number
+  program      String? // e.g. BS Computer Science
+  department   String? // e.g. Department of Computer Science
+  college      String    @default("CCIS")
+  contactNo    String?
+  /// Faculty only: maximum concurrent advisees (FR-24 availability criteria)
+  advisingLoad Int       @default(5)
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Relations
+  createdTheses     ThesisProject[]  @relation("ThesisCreator")
+  advisedTheses     ThesisProject[]  @relation("ThesisAdviser")
+  memberships       ThesisMember[]
+  adviserRequests   AdviserRequest[] @relation("RequestAdviser")
+  panelAssignments  PanelAssignment[]
+  uploadedDocuments Document[]       @relation("DocumentUploader")
+  evaluations       Evaluation[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  passwordResets    PasswordResetToken[]
+  createdDefenses   DefenseSchedule[] @relation("DefenseCreator")
+  defensePanels     DefensePanelist[]
+  archivedTheses    ArchivedThesis[]  @relation("ArchivedBy")
+
+  @@index([role, status])
+  @@index([lastName, firstName])
+}
+
+/// Time-bound, single-use password recovery token (FR-08, FR-09, NFR-08).
+/// Only the SHA-256 hash of the token is persisted.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+/// SRS 4.5.1 - Thesis Projects.
+model ThesisProject {
+  id           String    @id @default(cuid())
+  referenceNo  String    @unique
+  title        String
+  abstract     String?
+  keywords     String? // comma separated
+  program      String
+  department   String
+  college      String    @default("CCIS")
+  academicYear String
+  status       String    @default("ACTIVE")
+  currentStage String    @default("PROPOSAL_DEVELOPMENT")
+  adviserId    String?
+  createdById  String
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  adviser   User? @relation("ThesisAdviser", fields: [adviserId], references: [id])
+  createdBy User  @relation("ThesisCreator", fields: [createdById], references: [id])
+
+  members         ThesisMember[]
+  adviserRequests AdviserRequest[]
+  panel           PanelAssignment[]
+  milestones      Milestone[]
+  documents       Document[]
+  defenses        DefenseSchedule[]
+  archive         ArchivedThesis?
+
+  @@index([status, currentStage])
+  @@index([adviserId])
+  @@index([department, academicYear])
+}
+
+/// SRS 4.5.1 - Thesis Members. Students belonging to a thesis group.
+model ThesisMember {
+  id        String   @id @default(cuid())
+  thesisId  String
+  userId    String
+  groupRole String   @default("MEMBER") // LEADER | MEMBER
+  joinedAt  DateTime @default(now())
+
+  thesis ThesisProject @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([thesisId, userId])
+  @@index([userId])
+}
+
+/// SRS 4.5.1 - Adviser Assignments (FR-25 to FR-28).
+model AdviserRequest {
+  id          String    @id @default(cuid())
+  thesisId    String
+  adviserId   String
+  status      String    @default("PENDING")
+  message     String?
+  response    String?
+  respondedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  thesis  ThesisProject @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  adviser User          @relation("RequestAdviser", fields: [adviserId], references: [id], onDelete: Cascade)
+
+  @@index([adviserId, status])
+  @@index([thesisId, status])
+}
+
+/// Panel members assigned to a thesis project (SRS 4.5.2).
+model PanelAssignment {
+  id         String   @id @default(cuid())
+  thesisId   String
+  panelistId String
+  panelRole  String   @default("MEMBER") // CHAIR | MEMBER
+  assignedAt DateTime @default(now())
+
+  thesis   ThesisProject @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  panelist User          @relation(fields: [panelistId], references: [id], onDelete: Cascade)
+
+  @@unique([thesisId, panelistId])
+  @@index([panelistId])
+}
+
+/// SRS 4.5.1 - Thesis Milestones (FR-41 to FR-45).
+model Milestone {
+  id          String    @id @default(cuid())
+  thesisId    String
+  stageKey    String
+  name        String
+  sequence    Int
+  status      String    @default("LOCKED")
+  startedAt   DateTime?
+  submittedAt DateTime?
+  approvedAt  DateTime?
+
+  thesis    ThesisProject @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  documents Document[]
+
+  @@unique([thesisId, stageKey])
+  @@index([thesisId, sequence])
+}
+
+/// SRS 4.5.1 - Documents (FR-29 to FR-34).
+/// Revisions are stored as new rows sharing `requirementKey` with an
+/// incremented `version`, preserving the full submission history.
+model Document {
+  id             String   @id @default(cuid())
+  thesisId       String
+  milestoneId    String
+  requirementKey String
+  title          String
+  fileName       String
+  storedName     String   @unique
+  mimeType       String
+  sizeBytes      Int
+  checksum       String?
+  version        Int      @default(1)
+  status         String   @default("PENDING")
+  isCurrent      Boolean  @default(true)
+  uploadedById   String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  thesis      ThesisProject @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  milestone   Milestone     @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  uploadedBy  User          @relation("DocumentUploader", fields: [uploadedById], references: [id])
+  evaluations Evaluation[]
+  archivedAs  ArchivedThesis[]
+
+  @@index([thesisId, requirementKey, version])
+  @@index([status])
+}
+
+/// SRS 4.5.1 - Evaluations (FR-35 to FR-39).
+model Evaluation {
+  id          String   @id @default(cuid())
+  documentId  String
+  evaluatorId String
+  decision    String
+  comments    String
+  score       Float?
+  createdAt   DateTime @default(now())
+
+  document  Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  evaluator User     @relation(fields: [evaluatorId], references: [id])
+
+  @@index([documentId])
+  @@index([evaluatorId])
+}
+
+/// SRS 4.5.1 - Defense Schedules (FR-46 to FR-49).
+model DefenseSchedule {
+  id          String   @id @default(cuid())
+  thesisId    String
+  defenseType String
+  scheduledAt DateTime
+  durationMin Int      @default(90)
+  venue       String
+  status      String   @default("SCHEDULED")
+  remarks     String?
+  createdById String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  thesis    ThesisProject     @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  createdBy User              @relation("DefenseCreator", fields: [createdById], references: [id])
+  panelists DefensePanelist[]
+
+  @@index([scheduledAt])
+  @@index([thesisId])
+}
+
+model DefensePanelist {
+  id         String  @id @default(cuid())
+  scheduleId String
+  panelistId String
+  panelRole  String  @default("MEMBER") // CHAIR | MEMBER
+  attended   Boolean @default(false)
+
+  schedule DefenseSchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  panelist User            @relation(fields: [panelistId], references: [id], onDelete: Cascade)
+
+  @@unique([scheduleId, panelistId])
+}
+
+/// SRS 4.5.1 - Notifications (FR-50 to FR-52).
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  category  String
+  title     String
+  body      String
+  link      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, readAt])
+  @@index([createdAt])
+}
+
+/// SRS 4.5.1 - Audit Logs (NFR-10, SRS 4.2 Audit and Monitoring).
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  action     String
+  entityType String
+  entityId   String?
+  summary    String
+  metadata   String? // JSON payload
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@index([actorId])
+}
+
+/// SRS 4.5.1 - Archived Theses (FR-61 to FR-63).
+model ArchivedThesis {
+  id           String   @id @default(cuid())
+  thesisId     String   @unique
+  manuscriptId String?
+  citation     String
+  keywords     String?
+  visibility   String   @default("INSTITUTIONAL") // PUBLIC | INSTITUTIONAL | RESTRICTED
+  archivedById String
+  archivedAt   DateTime @default(now())
+
+  thesis     ThesisProject @relation(fields: [thesisId], references: [id], onDelete: Cascade)
+  manuscript Document?     @relation(fields: [manuscriptId], references: [id])
+  archivedBy User          @relation("ArchivedBy", fields: [archivedById], references: [id])
+
+  @@index([visibility])
+}

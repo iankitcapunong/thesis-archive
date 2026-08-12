@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -b student.txt -o /dev/null -w '  redirects to: %{redirect_url}\\\\n' __TRACKED_VAR__/student/register)",
+      "Bash(curl -s -c free.txt -o /dev/null -X POST __TRACKED_VAR__/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"mvillar@carsu.edu.ph\",\"password\":\"Thrive@2027\"}')",
+      "Bash(curl -s -b free.txt -o /dev/null -w '  /student/register -> %{http_code}\\\\n' __TRACKED_VAR__/student/register)",
+      "Bash(curl -s -b free.txt __TRACKED_VAR__/student)",
+      "PowerShell(Set-Location \"c:\\\\Users\\\\yayan\\\\Desktop\\\\HA\"; Get-ChildItem -Path thrive -Recurse -Directory | Where-Object { $_.FullName -notmatch 'node_modules|\\\\.next|storage' } | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\\(Get-Location\\).Path + \"\\\\\", \"\"\\) } | Sort-Object)"
+    ]
+  }
+}
