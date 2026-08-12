@@ -126,12 +126,38 @@ export function isInstitutionalEmail(email: string): boolean {
   return email.trim().toLowerCase().endsWith(`@${INSTITUTIONAL_EMAIL_DOMAIN}`);
 }
 
-export const ACADEMIC_PROGRAMS = [
-  'BS Computer Science',
-  'BS Information Technology',
-  'BS Information Systems',
-  'BS Data Science',
+/**
+ * Degree programs, grouped by the college that owns them.
+ *
+ * The seven colleges are the constituent colleges of the Caraga State
+ * University main campus. Only the College of Computing and Information
+ * Sciences is populated: it is the SRS pilot scope, and the remaining rosters
+ * must be transcribed from the university's official offerings rather than
+ * guessed at — a wrong program name here follows a student through their whole
+ * record. Colleges with no programs listed are skipped in the picker, so
+ * filling one in is the only step needed to switch it on.
+ */
+export const PROGRAMS_BY_COLLEGE: { college: string; programs: string[] }[] = [
+  {
+    college: 'College of Computing and Information Sciences',
+    programs: ['BS Computer Science', 'BS Information Technology', 'BS Information Systems', 'BS Data Science'],
+  },
+  { college: 'College of Engineering and Geosciences', programs: [] },
+  { college: 'College of Agriculture and Agri-Industries', programs: [] },
+  { college: 'College of Forestry and Environmental Sciences', programs: [] },
+  { college: 'College of Mathematics and Natural Sciences', programs: [] },
+  { college: 'College of Education', programs: [] },
+  { college: 'College of Humanities and Social Sciences', programs: [] },
 ];
+
+/** Flat list used for server-side validation. */
+export const ACADEMIC_PROGRAMS: string[] = PROGRAMS_BY_COLLEGE.flatMap((c) => c.programs);
+
+/**
+ * Escape hatch so an unlisted program never blocks registration. Stored as-is
+ * and corrected by the coordinator during onboarding.
+ */
+export const PROGRAM_OTHER = 'Not listed — my program is not shown';
 
 export const DEPARTMENTS = [
   'Department of Computer Science',

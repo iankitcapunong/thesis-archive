@@ -18,7 +18,22 @@
       "PowerShell(Get-CimInstance Win32_Process -Filter \"Name = 'node.exe'\" | Select-Object ProcessId, @{n='cmd';e={ $_.CommandLine.Substring\\(0, [Math]::Min\\(120, $_.CommandLine.Length\\)\\) }} | Format-Table -AutoSize -Wrap)",
       "Bash(awk '/^model User /,/^}/' prisma/schema.prisma)",
       "Bash(awk '/AUDIT_ACTIONS = \\\\{/,/\\\\} as const/' src/lib/audit.ts)",
-      "Bash(npx tsx *)"
+      "Bash(npx tsx *)",
+      "Bash(cp \"C:/Users/yayan/AppData/Local/Temp/claude/c--Users-yayan-Desktop-HA/d68cd6ed-0d2f-4fe1-bcad-49d932b90162/scratchpad/count.ts\" /c/Users/yayan/Desktop/HA/thrive/_count.ts)",
+      "Bash(git show *)",
+      "Bash(grep -i \"\\\\.pdf$\")",
+      "Bash(grep -ci \"\\\\.pdf$\")",
+      "Bash(DATABASE_URL=\"file:../demo-backup-20260812/dev.db\" npx tsx _count.ts)",
+      "Bash(npx prisma *)",
+      "WebFetch(domain:www.carsu.edu.ph)",
+      "WebFetch(domain:www.finduniversity.ph)",
+      "WebFetch(domain:myadmission.carsu.edu.ph)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:cegs.carsu.edu.ph)",
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"Yes, wipe it\" npx prisma db push --force-reset --skip-generate)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\yayan\\Desktop\\HA\\thrive"
     ]
   }
 }

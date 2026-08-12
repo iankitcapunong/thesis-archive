@@ -5,7 +5,7 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader } from '@/components/ui';
-import { ALL_ROLES, ROLE_LABELS, ACADEMIC_PROGRAMS, DEPARTMENTS, ROLES, type Role } from '@/lib/constants';
+import { ALL_ROLES, ROLE_LABELS, PROGRAMS_BY_COLLEGE, DEPARTMENTS, ROLES, type Role } from '@/lib/constants';
 
 export function CreateUserPanel({ actorRole, defaultDepartment }: { actorRole: string; defaultDepartment: string }) {
   const router = useRouter();
@@ -155,10 +155,14 @@ export function CreateUserPanel({ actorRole, defaultDepartment }: { actorRole: s
               </label>
               <select id="program" name="program" className="field-input">
                 <option value="">Not specified</option>
-                {ACADEMIC_PROGRAMS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
+                {PROGRAMS_BY_COLLEGE.filter((c) => c.programs.length > 0).map((group) => (
+                  <optgroup key={group.college} label={group.college}>
+                    {group.programs.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>

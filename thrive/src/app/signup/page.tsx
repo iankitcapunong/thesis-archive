@@ -4,6 +4,8 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { SignupForm } from './signup-form';
 import { Logo } from '@/components/logo';
+import { GoogleButton } from '@/components/google-button';
+import { isGoogleEnabled } from '@/lib/google';
 import { INSTITUTIONAL_EMAIL_DOMAIN } from '@/lib/constants';
 
 export const metadata: Metadata = { title: 'Create an account' };
@@ -62,6 +64,7 @@ export default function SignupPage() {
 
           <div className="card mt-6 p-5 sm:p-6">
             <SignupForm />
+            {isGoogleEnabled() && <GoogleButton />}
           </div>
 
           <p className="mt-6 text-center text-sm text-slate-500">

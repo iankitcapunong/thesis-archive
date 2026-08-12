@@ -16,6 +16,7 @@ import {
   ROLES,
   USER_STATUS,
   ACADEMIC_PROGRAMS,
+  PROGRAM_OTHER,
   INSTITUTIONAL_EMAIL_DOMAIN,
   isInstitutionalEmail,
 } from '@/lib/constants';
@@ -67,7 +68,11 @@ export const POST = handler(async (request) => {
 
   // An unrecognised program is dropped rather than rejected — the coordinator
   // corrects it during onboarding, and it is not worth blocking a signup over.
-  const program = input.program && ACADEMIC_PROGRAMS.includes(input.program) ? input.program : null;
+  // "Not listed" is stored as null for the same reason.
+  const program =
+    input.program && input.program !== PROGRAM_OTHER && ACADEMIC_PROGRAMS.includes(input.program)
+      ? input.program
+      : null;
 
   const created = await prisma.user.create({
     data: {

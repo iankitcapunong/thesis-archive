@@ -4,15 +4,30 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { LoginForm } from './login-form';
 import { Logo } from '@/components/logo';
+import { GoogleButton } from '@/components/google-button';
+import { isGoogleEnabled } from '@/lib/google';
+import { INSTITUTIONAL_EMAIL_DOMAIN } from '@/lib/constants';
 
 export const metadata: Metadata = { title: 'Sign in' };
+
+/** Codes set by the Google callback; anything unrecognised falls back. */
+const SIGN_IN_ERRORS: Record<string, string> = {
+  google_domain: `That Google account is not a @${INSTITUTIONAL_EMAIL_DOMAIN} address. Sign in with your university account.`,
+  google_cancelled: 'Google sign-in was cancelled. You can try again or use your password.',
+  google_expired: 'That sign-in attempt expired. Please try again.',
+  google_state: 'That sign-in attempt could not be verified. Please start again.',
+  google_unavailable: 'Google sign-in is not configured on this deployment. Please use your password.',
+  google_failed: 'Google sign-in could not be completed. Please try again or use your password.',
+  inactive: 'This account is not active. Please contact your research coordinator or the system administrator.',
+};
 
 export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string; reset?: string }>;
+  searchParams: Promise<{ next?: string; reset?: string; error?: string }>;
 }) {
   const params = await searchParams;
+  const signInError = params.error ? (SIGN_IN_ERRORS[params.error] ?? SIGN_IN_ERRORS.google_failed) : null;
 
   return (
     <div className="flex min-h-screen-dvh flex-col lg:flex-row">
@@ -64,8 +79,18 @@ export default async function LoginPage({
             </div>
           )}
 
+          {signInError && (
+            <div
+              role="alert"
+              className="mt-5 animate-scale-in rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+            >
+              {signInError}
+            </div>
+          )}
+
           <div className="card mt-6 p-5 sm:p-6">
             <LoginForm nextPath={params.next} />
+            {isGoogleEnabled() && <GoogleButton />}
           </div>
 
           <p className="mt-5 text-center text-sm text-slate-600">

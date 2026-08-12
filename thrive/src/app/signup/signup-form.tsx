@@ -3,7 +3,12 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Spinner } from '@/components/ui';
-import { ACADEMIC_PROGRAMS, INSTITUTIONAL_EMAIL_DOMAIN, isInstitutionalEmail } from '@/lib/constants';
+import {
+  PROGRAMS_BY_COLLEGE,
+  PROGRAM_OTHER,
+  INSTITUTIONAL_EMAIL_DOMAIN,
+  isInstitutionalEmail,
+} from '@/lib/constants';
 
 type FieldErrors = Record<string, string>;
 
@@ -126,11 +131,18 @@ export function SignupForm() {
             className="field-input"
           >
             <option value="">Select your program</option>
-            {ACADEMIC_PROGRAMS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
+            {/* A college with no programs listed yet is skipped rather than
+                shown as an empty group. */}
+            {PROGRAMS_BY_COLLEGE.filter((c) => c.programs.length > 0).map((group) => (
+              <optgroup key={group.college} label={group.college}>
+                {group.programs.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </optgroup>
             ))}
+            <option value={PROGRAM_OTHER}>{PROGRAM_OTHER}</option>
           </select>
         </div>
       </div>

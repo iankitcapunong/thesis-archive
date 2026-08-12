@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { ACADEMIC_PROGRAMS, DEPARTMENTS } from '@/lib/constants';
+import { PROGRAMS_BY_COLLEGE, DEPARTMENTS } from '@/lib/constants';
 
 const CURRENT_AY = (() => {
   const year = new Date().getFullYear();
@@ -104,10 +104,14 @@ export function RegisterThesisForm({
           </label>
           <select id="program" name="program" required defaultValue={defaultProgram} className="field-input">
             <option value="">Select a program</option>
-            {ACADEMIC_PROGRAMS.map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
+            {PROGRAMS_BY_COLLEGE.filter((c) => c.programs.length > 0).map((group) => (
+              <optgroup key={group.college} label={group.college}>
+                {group.programs.map((p) => (
+                  <option key={p} value={p}>
+                    {p}
+                  </option>
+                ))}
+              </optgroup>
             ))}
           </select>
           {fieldErrors.program && <p className="field-error">{fieldErrors.program}</p>}
