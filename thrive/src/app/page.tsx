@@ -7,7 +7,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { prisma } from '@/lib/prisma';
-import { Badge, Card, formatDate } from '@/components/ui';
+import { Card, formatDate } from '@/components/ui';
 import { Logo } from '@/components/logo';
 import { Reveal } from '@/components/reveal';
 import { CountUp } from '@/components/count-up';
@@ -110,19 +110,14 @@ export default async function LandingPage() {
           />
 
           <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-24">
-            <div className="animate-fade-up">
-              <Badge tone="neutral" className="bg-white/15 text-white ring-white/25">
-                College of Computing and Information Sciences · Pilot Implementation
-              </Badge>
-            </div>
-            <h1 className="anim-delay-100 mt-5 max-w-3xl animate-fade-up text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
+            <h1 className="max-w-3xl animate-fade-up text-3xl font-semibold leading-tight tracking-tight sm:text-5xl">
               Thesis Hub for Research, Innovation, Validation and Evaluation
             </h1>
-            <p className="anim-delay-200 mt-4 max-w-2xl animate-fade-up text-base text-csu-50 sm:mt-5 sm:text-lg">
+            <p className="anim-delay-100 mt-4 max-w-2xl animate-fade-up text-base text-csu-50 sm:mt-5 sm:text-lg">
               An intelligent academic governance platform that manages the complete undergraduate thesis lifecycle
               at Caraga State University — from registration through defense, approval and institutional archiving.
             </p>
-            <div className="anim-delay-300 mt-8 flex animate-fade-up flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="anim-delay-200 mt-8 flex animate-fade-up flex-col gap-3 sm:flex-row sm:flex-wrap">
               <Link
                 href="/login"
                 className="btn bg-white px-5 py-2.5 font-semibold text-csu-700 shadow-lg shadow-csu-900/20 hover:bg-csu-50 hover:shadow-xl"
@@ -139,7 +134,7 @@ export default async function LandingPage() {
 
             {/* Animated as one block so it lands after the headline cascade;
                 a nested stagger would run under the parent's own fade. */}
-            <dl className="anim-delay-500 mt-12 grid max-w-2xl animate-fade-up grid-cols-1 gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
+            <dl className="anim-delay-300 mt-12 grid max-w-2xl animate-fade-up grid-cols-1 gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
               {[
                 ['Active thesis projects', activeTheses],
                 ['Faculty advisers', advisers],
@@ -212,9 +207,8 @@ export default async function LandingPage() {
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-4 py-8 pb-safe-6 text-xs text-slate-500 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-6 sm:text-sm">
-          <p>Caraga State University · College of Computing and Information Sciences</p>
-          <p>Project THRIVE · SRS baseline v1.0</p>
+        <div className="mx-auto max-w-6xl px-4 py-8 pb-safe-6 text-xs text-slate-500 sm:px-6 sm:text-sm">
+          <p>Caraga State University</p>
         </div>
       </footer>
     </div>
