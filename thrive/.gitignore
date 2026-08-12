@@ -11,6 +11,10 @@ prisma/dev.db*
 # Uploaded thesis documents — institutional records, never committed
 storage/
 
+# Safety net: uploads must never land in the project root. If a PDF appears
+# here, STORAGE_DIR is misconfigured — see src/lib/storage.ts.
+/*.pdf
+
 # Environment secrets (NFR-09)
 .env
 .env.local

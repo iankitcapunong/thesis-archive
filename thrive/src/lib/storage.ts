@@ -13,7 +13,10 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { UPLOAD_RULES } from './constants';
 
-const STORAGE_ROOT = path.resolve(process.env.STORAGE_DIR ?? path.join(process.cwd(), 'storage', 'documents'));
+// `||` rather than `??`: an unset variable and a blank one must both fall back.
+// A blank STORAGE_DIR resolves to the current working directory, which would
+// scatter uploaded manuscripts across the project root.
+const STORAGE_ROOT = path.resolve(process.env.STORAGE_DIR || path.join(process.cwd(), 'storage', 'documents'));
 
 export type StoredFile = {
   storedName: string;
