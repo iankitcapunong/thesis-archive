@@ -74,13 +74,14 @@ export default async function UserManagementPage({
       <Card>
         <CardHeader title={`${accounts.length} account${accounts.length === 1 ? '' : 's'}`} />
 
-        <form className="grid gap-3 border-b border-slate-100 p-4 sm:grid-cols-[1fr_auto_auto_auto]">
+        {/* Two columns at tablet width, one row only once there is room for it. */}
+        <form className="grid gap-3 border-b border-slate-100 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto]">
           <input
             type="search"
             name="query"
             defaultValue={params.query ?? ''}
             placeholder="Search by name, email or ID number"
-            className="field-input"
+            className="field-input sm:col-span-2 lg:col-span-1"
             aria-label="Search users"
           />
           <select name="role" defaultValue={params.role ?? ''} className="field-input" aria-label="Filter by role">

@@ -85,13 +85,39 @@ export function PageHeader({
   actions?: ReactNode;
 }) {
   return (
-    <header className="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <header className="mb-6 flex animate-fade-down flex-wrap items-start justify-between gap-x-4 gap-y-3">
       <div className="min-w-0">
-        <h1 className="text-2xl font-semibold text-slate-900">{title}</h1>
+        <h1 className="text-xl font-semibold tracking-tight text-slate-900 sm:text-2xl">{title}</h1>
         {description && <p className="mt-1 max-w-3xl text-sm text-slate-600">{description}</p>}
       </div>
-      {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+      {/* Buttons share the full row on narrow screens rather than crowding the
+          title; status pills and badges keep their natural width. */}
+      {actions && (
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto [&>a]:flex-1 [&>button]:flex-1 sm:[&>a]:flex-none sm:[&>button]:flex-none">
+          {actions}
+        </div>
+      )}
     </header>
+  );
+}
+
+/** Inline busy indicator for buttons that are waiting on a request. */
+export function Spinner({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className={clsx('h-4 w-4 animate-spin', className)}
+    >
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2.5" className="opacity-25" />
+      <path
+        d="M21 12a9 9 0 0 0-9-9"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }
 
@@ -122,9 +148,9 @@ export function StatCard({
   href?: string;
 }) {
   const body = (
-    <div className="card h-full p-5 transition hover:shadow-md">
+    <div className={clsx('h-full p-4 sm:p-5', href ? 'card-interactive' : 'card hover:shadow-md')}>
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-2 text-3xl font-semibold text-slate-900">{value}</p>
+      <p className="mt-2 text-2xl font-semibold text-slate-900 sm:text-3xl">{value}</p>
       {hint && (
         <p className="mt-2">
           <Badge tone={tone}>{hint}</Badge>
@@ -132,12 +158,18 @@ export function StatCard({
       )}
     </div>
   );
-  return href ? <Link href={href}>{body}</Link> : body;
+  return href ? (
+    <Link href={href} className="group block h-full rounded-xl">
+      {body}
+    </Link>
+  ) : (
+    body
+  );
 }
 
 export function EmptyState({ title, description, action }: { title: string; description?: string; action?: ReactNode }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-2 px-6 py-12 text-center">
+    <div className="flex animate-fade-in flex-col items-center justify-center gap-2 px-4 py-10 text-center sm:px-6 sm:py-12">
       <p className="text-sm font-medium text-slate-700">{title}</p>
       {description && <p className="max-w-md text-sm text-slate-500">{description}</p>}
       {action && <div className="mt-3">{action}</div>}
@@ -161,8 +193,10 @@ export function ProgressBar({ percent, label }: { percent: number; label?: strin
         aria-valuemax={100}
         aria-label={label ?? 'Overall progress'}
       >
+        {/* Width is the real value; the scaleX keyframe sweeps it in from the
+            left on mount without animating layout. */}
         <div
-          className="h-full rounded-full bg-gradient-to-r from-csu-500 to-csu-700 transition-all"
+          className="h-full origin-left animate-grow-x rounded-full bg-gradient-to-r from-csu-500 to-csu-700 transition-[width] duration-500"
           style={{ width: `${clamped}%` }}
         />
       </div>

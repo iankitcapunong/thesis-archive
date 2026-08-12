@@ -62,13 +62,14 @@ export default async function ThesisDirectoryPage({
         <CardHeader title={`${theses.length} thesis project${theses.length === 1 ? '' : 's'}`} />
 
         {/* Search and filters (FR-15 pattern applied to thesis records) */}
-        <form className="grid gap-3 border-b border-slate-100 p-4 sm:grid-cols-[1fr_auto_auto_auto]">
+        {/* Two columns at tablet width, one row only once there is room for it. */}
+        <form className="grid gap-3 border-b border-slate-100 p-4 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto]">
           <input
             type="search"
             name="query"
             defaultValue={params.query ?? ''}
             placeholder="Search by title, reference number or keyword"
-            className="field-input"
+            className="field-input sm:col-span-2 lg:col-span-1"
             aria-label="Search theses"
           />
           <select name="stage" defaultValue={params.stage ?? ''} className="field-input" aria-label="Filter by stage">

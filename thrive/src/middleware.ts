@@ -69,5 +69,15 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|.*\\.svg$).*)'],
+  /*
+   * Page routes only. Static assets under `public/` must be excluded by
+   * extension: without this an unauthenticated request for, say, the landing
+   * page's hero image is redirected to /login, which serves HTML in place of
+   * the file. Nothing sensitive is exposed — `public/` is served to anyone by
+   * definition, and uploaded manuscripts live outside the web root and are
+   * reachable only through the authorized download route (see lib/storage.ts).
+   */
+  matcher: [
+    '/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpe?g|gif|webp|avif|ico|bmp|woff2?|ttf|otf|eot|webmanifest|txt|xml)$).*)',
+  ],
 };

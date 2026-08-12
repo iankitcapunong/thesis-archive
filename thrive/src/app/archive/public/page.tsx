@@ -48,32 +48,34 @@ export default async function PublicArchivePage({
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
-          <Logo />
-          <Link href="/login" className="btn-primary btn-sm">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur-md">
+        <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
+          <Logo compact />
+          <Link href="/login" className="btn-primary btn-sm shrink-0">
             Sign in
           </Link>
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
-        <h1 className="text-3xl font-semibold text-slate-900">Public thesis archive</h1>
-        <p className="mt-2 max-w-2xl text-slate-600">
-          Completed undergraduate theses from the College of Computing and Information Sciences released for public
-          reference. Full manuscripts are available to signed-in institutional users.
-        </p>
+      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-10">
+        <div className="animate-fade-up">
+          <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Public thesis archive</h1>
+          <p className="mt-2 max-w-2xl text-sm text-slate-600 sm:text-base">
+            Completed undergraduate theses from the College of Computing and Information Sciences released for public
+            reference. Full manuscripts are available to signed-in institutional users.
+          </p>
+        </div>
 
-        <form className="mt-6 flex flex-wrap gap-3">
+        <form className="anim-delay-100 mt-6 flex animate-fade-up flex-col gap-3 sm:flex-row sm:flex-wrap">
           <input
             type="search"
             name="query"
             defaultValue={params.query ?? ''}
             placeholder="Search by title, author or keyword"
-            className="field-input flex-1"
+            className="field-input sm:flex-1"
             aria-label="Search the public archive"
           />
-          <button type="submit" className="btn-primary">
+          <button type="submit" className="btn-primary sm:shrink-0">
             Search
           </button>
         </form>
@@ -82,16 +84,16 @@ export default async function PublicArchivePage({
           {entries.length} published thesis{entries.length === 1 ? '' : 'es'}
         </p>
 
-        <div className="mt-4 space-y-4">
+        <div className="stagger mt-4 space-y-4">
           {entries.length === 0 && (
-            <Card className="p-8 text-center">
+            <Card className="p-6 text-center sm:p-8">
               <p className="text-sm font-medium text-slate-700">No published theses match your search</p>
               <p className="mt-1 text-sm text-slate-500">Try a different keyword, or browse the full list.</p>
             </Card>
           )}
 
           {entries.map((entry) => (
-            <Card key={entry.id} className="p-5">
+            <Card key={entry.id} className="card-interactive p-4 sm:p-5">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <p className="text-xs font-medium uppercase tracking-wide text-csu-700">
                   {entry.thesis.program} · AY {entry.thesis.academicYear}
@@ -122,7 +124,7 @@ export default async function PublicArchivePage({
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-5xl px-4 py-8 text-sm text-slate-500 sm:px-6">
+        <div className="mx-auto max-w-5xl px-4 py-8 pb-safe-6 text-xs text-slate-500 sm:px-6 sm:text-sm">
           Caraga State University · College of Computing and Information Sciences
         </div>
       </footer>

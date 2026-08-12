@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Spinner } from '@/components/ui';
 
 export function LoginForm({ nextPath }: { nextPath?: string }) {
   const router = useRouter();
@@ -42,7 +43,10 @@ export function LoginForm({ nextPath }: { nextPath?: string }) {
   return (
     <form onSubmit={onSubmit} noValidate>
       {error && (
-        <div role="alert" className="mb-4 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+        <div
+          role="alert"
+          className="mb-4 animate-fade-down rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700"
+        >
           {error}
         </div>
       )}
@@ -69,7 +73,7 @@ export function LoginForm({ nextPath }: { nextPath?: string }) {
           <label htmlFor="password" className="field-label mb-0">
             Password
           </label>
-          <Link href="/forgot-password" className="text-xs font-medium text-csu-700 hover:text-csu-800">
+          <Link href="/forgot-password" className="link-underline text-xs font-medium text-csu-700 hover:text-csu-800">
             Forgot password?
           </Link>
         </div>
@@ -87,6 +91,7 @@ export function LoginForm({ nextPath }: { nextPath?: string }) {
       </div>
 
       <button type="submit" className="btn-primary w-full" disabled={pending}>
+        {pending && <Spinner />}
         {pending ? 'Signing in…' : 'Sign in'}
       </button>
     </form>

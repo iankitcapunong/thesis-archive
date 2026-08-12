@@ -12,16 +12,16 @@ export default async function UnauthorizedPage() {
   const user = await getCurrentUser();
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-12">
-      <div className="w-full max-w-lg text-center">
+    <main className="flex min-h-screen-dvh items-center justify-center bg-slate-50 px-5 py-12 sm:px-6">
+      <div className="w-full max-w-lg animate-fade-up text-center">
         <p className="text-sm font-semibold uppercase tracking-wide text-amber-600">403 · Access denied</p>
-        <h1 className="mt-3 text-3xl font-semibold text-slate-900">This area is outside your permissions</h1>
-        <p className="mt-3 text-slate-600">
+        <h1 className="mt-3 text-2xl font-semibold text-slate-900 sm:text-3xl">This area is outside your permissions</h1>
+        <p className="mt-3 text-sm text-slate-600 sm:text-base">
           {user
             ? `You are signed in as ${user.firstName} ${user.lastName} (${ROLE_LABELS[user.role as Role] ?? user.role}). This page belongs to a different role.`
             : 'Your session is no longer active. Please sign in again to continue.'}
         </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row sm:flex-wrap">
           {user ? (
             <>
               <Link href={homeRouteFor(user.role)} className="btn-primary">

@@ -5,7 +5,17 @@
       "Bash(curl -s -c free.txt -o /dev/null -X POST __TRACKED_VAR__/api/auth/login -H 'Content-Type: application/json' -d '{\"email\":\"mvillar@carsu.edu.ph\",\"password\":\"Thrive@2027\"}')",
       "Bash(curl -s -b free.txt -o /dev/null -w '  /student/register -> %{http_code}\\\\n' __TRACKED_VAR__/student/register)",
       "Bash(curl -s -b free.txt __TRACKED_VAR__/student)",
-      "PowerShell(Set-Location \"c:\\\\Users\\\\yayan\\\\Desktop\\\\HA\"; Get-ChildItem -Path thrive -Recurse -Directory | Where-Object { $_.FullName -notmatch 'node_modules|\\\\.next|storage' } | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\\(Get-Location\\).Path + \"\\\\\", \"\"\\) } | Sort-Object)"
+      "PowerShell(Set-Location \"c:\\\\Users\\\\yayan\\\\Desktop\\\\HA\"; Get-ChildItem -Path thrive -Recurse -Directory | Where-Object { $_.FullName -notmatch 'node_modules|\\\\.next|storage' } | Select-Object -ExpandProperty FullName | ForEach-Object { $_.Replace\\(\\(Get-Location\\).Path + \"\\\\\", \"\"\\) } | Sort-Object)",
+      "PowerShell($r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60; \"status: $\\($r.StatusCode\\)\"; $h = $r.Content; foreach \\($t in @\\('animate-fade-up','anim-delay-100','animate-float','stagger','card-interactive','backdrop-blur-md'\\)\\) { if \\($h -match [regex]::Escape\\($t\\)\\) { \"FOUND $t\" } else { \"MISSING $t\" } })",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 60 } catch { $resp = $_.Exception.Response; $sr = New-Object System.IO.StreamReader\\($resp.GetResponseStream\\(\\)\\); $body = $sr.ReadToEnd\\(\\); $body.Substring\\(0, [Math]::Min\\(3000, $body.Length\\)\\) })",
+      "PowerShell(foreach \\($p in @\\('/forgot-password','/login','/not-a-real-page'\\)\\) { try { $r = Invoke-WebRequest -Uri \"http://localhost:3000$p\" -UseBasicParsing -TimeoutSec 60; \"$p -> $\\($r.StatusCode\\)\" } catch { \"$p -> $\\($_.Exception.Response.StatusCode.value__\\)\" } })",
+      "PowerShell($conn = Get-NetTCPConnection -LocalPort 3000 -State Listen -ErrorAction SilentlyContinue; foreach \\($c in $conn\\) { $p = Get-Process -Id $c.OwningProcess -ErrorAction SilentlyContinue; \"PID $\\($c.OwningProcess\\) : $\\($p.ProcessName\\) : $\\($p.Path\\)\" })",
+      "PowerShell(\\(Get-CimInstance Win32_Process -Filter \"ProcessId = 22048\"\\).CommandLine)",
+      "PowerShell(foreach \\($p in @\\('/','/login','/archive/public'\\)\\) { try { $r = Invoke-WebRequest -Uri \"http://localhost:3000$p\" -UseBasicParsing -TimeoutSec 120; \"$p -> $\\($r.StatusCode\\), $\\($r.Content.Length\\) bytes\" } catch { \"$p -> ERROR $\\($_.Exception.Message\\)\" } })",
+      "PowerShell($r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 120; $h = $r.Content; foreach \\($t in @\\('animate-fade-up','anim-delay-100','animate-float','stagger','card-interactive','backdrop-blur-md','reveal'\\)\\) { if \\($h -match [regex]::Escape\\($t\\)\\) { \"FOUND $t\" } else { \"MISSING $t\" } })",
+      "Bash(node -e \"console.log\\('sharp', require\\('sharp/package.json'\\).version\\)\")",
+      "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/image.png\" -UseBasicParsing -TimeoutSec 120; \"status $\\($r.StatusCode\\)  type=$\\($r.Headers['Content-Type']\\)  {0:N0} KB\" -f \\($r.RawContentLength/1KB\\) } catch { \"ERR $\\($_.Exception.Response.StatusCode.value__\\)\" })",
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name = 'node.exe'\" | Select-Object ProcessId, @{n='cmd';e={ $_.CommandLine.Substring\\(0, [Math]::Min\\(120, $_.CommandLine.Length\\)\\) }} | Format-Table -AutoSize -Wrap)"
     ]
   }
 }

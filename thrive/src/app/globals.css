@@ -5,25 +5,55 @@
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
   }
 
   body {
     @apply bg-slate-50 text-slate-800 antialiased;
+    /* Stops iOS Safari from letting the page rubber-band sideways when a
+       table scroll container is dragged past its edge. */
+    overflow-x: hidden;
   }
 
   /* Visible focus for keyboard navigation (SRS 4.3.3 accessibility). */
   :focus-visible {
     @apply outline-none ring-2 ring-csu-500 ring-offset-2 ring-offset-white;
   }
+
+  /*
+   * Accessibility (SRS 4.3.3): motion is decoration, never information.
+   * Users who ask their OS for reduced motion get the same layout with every
+   * entrance, transition and looping animation collapsed to an instant state.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      animation-delay: 0ms !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer components {
   .card {
-    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm transition duration-200;
+  }
+
+  /* Opt-in lift for cards that link somewhere or otherwise invite a click. */
+  .card-interactive {
+    @apply card hover:-translate-y-0.5 hover:border-csu-200 hover:shadow-lg hover:shadow-csu-900/5;
   }
 
   .card-header {
-    @apply flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-4;
+    @apply flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-5;
   }
 
   .card-title {
@@ -31,28 +61,32 @@
   }
 
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition
-           disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
+           transition-[background-color,border-color,color,box-shadow,transform] duration-200 ease-out
+           active:scale-[0.97] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50;
+    /* Comfortable thumb target on touch screens (WCAG 2.5.5). */
+    min-height: 2.5rem;
   }
 
   .btn-primary {
-    @apply btn bg-csu-600 text-white hover:bg-csu-700;
+    @apply btn bg-csu-600 text-white shadow-sm hover:bg-csu-700 hover:shadow-md hover:shadow-csu-900/15;
   }
 
   .btn-secondary {
-    @apply btn border border-slate-300 bg-white text-slate-700 hover:bg-slate-50;
+    @apply btn border border-slate-300 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50;
   }
 
   .btn-danger {
-    @apply btn bg-rose-600 text-white hover:bg-rose-700;
+    @apply btn bg-rose-600 text-white shadow-sm hover:bg-rose-700 hover:shadow-md hover:shadow-rose-900/15;
   }
 
   .btn-ghost {
-    @apply btn text-slate-600 hover:bg-slate-100;
+    @apply btn text-slate-600 hover:bg-slate-100 hover:text-slate-900;
   }
 
   .btn-sm {
     @apply px-3 py-1.5 text-xs;
+    min-height: 2rem;
   }
 
   .field-label {
@@ -61,8 +95,17 @@
 
   .field-input {
     @apply w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900
-           placeholder:text-slate-400 focus:border-csu-500 focus:outline-none focus:ring-1 focus:ring-csu-500
+           transition duration-200 placeholder:text-slate-400
+           hover:border-slate-400 focus:border-csu-500 focus:outline-none focus:ring-1 focus:ring-csu-500
            disabled:bg-slate-100;
+    /* 16px on small screens stops iOS from zooming the viewport on focus. */
+    font-size: 16px;
+  }
+
+  @media (min-width: 640px) {
+    .field-input {
+      font-size: 0.875rem;
+    }
   }
 
   .field-error {
@@ -71,6 +114,21 @@
 
   .table-wrap {
     @apply overflow-x-auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+  }
+
+  .table-wrap::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  .table-wrap::-webkit-scrollbar-thumb {
+    @apply rounded-full bg-slate-300;
+  }
+
+  .table-wrap::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400;
   }
 
   .table {
@@ -85,7 +143,131 @@
     @apply border-b border-slate-100 px-4 py-3 align-middle text-slate-700;
   }
 
+  .table tbody tr {
+    @apply transition-colors duration-150;
+  }
+
   .table tbody tr:hover {
     @apply bg-slate-50/70;
+  }
+
+  /* Placeholder block for streamed/loading regions. */
+  .skeleton {
+    @apply relative overflow-hidden rounded-md bg-slate-200/80;
+  }
+
+  .skeleton::after {
+    @apply absolute inset-0 animate-shimmer bg-gradient-to-r from-transparent via-white/70 to-transparent;
+    content: '';
+  }
+}
+
+@layer utilities {
+  /*
+   * Animation delays. Tailwind's delay-* utilities only cover transitions, so
+   * entrance choreography needs its own scale.
+   */
+  .anim-delay-75 {
+    animation-delay: 75ms;
+  }
+  .anim-delay-100 {
+    animation-delay: 100ms;
+  }
+  .anim-delay-150 {
+    animation-delay: 150ms;
+  }
+  .anim-delay-200 {
+    animation-delay: 200ms;
+  }
+  .anim-delay-300 {
+    animation-delay: 300ms;
+  }
+  .anim-delay-500 {
+    animation-delay: 500ms;
+  }
+
+  /*
+   * Staggered entrance for a list or grid: the parent carries .stagger and each
+   * direct child animates a beat after the one before it. Purely CSS, so it
+   * works inside server components with no hydration cost.
+   */
+  .stagger > * {
+    animation: fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .stagger > *:nth-child(1) {
+    animation-delay: 40ms;
+  }
+  .stagger > *:nth-child(2) {
+    animation-delay: 100ms;
+  }
+  .stagger > *:nth-child(3) {
+    animation-delay: 160ms;
+  }
+  .stagger > *:nth-child(4) {
+    animation-delay: 220ms;
+  }
+  .stagger > *:nth-child(5) {
+    animation-delay: 280ms;
+  }
+  .stagger > *:nth-child(6) {
+    animation-delay: 340ms;
+  }
+  .stagger > *:nth-child(7) {
+    animation-delay: 400ms;
+  }
+  .stagger > *:nth-child(8) {
+    animation-delay: 460ms;
+  }
+  .stagger > *:nth-child(n + 9) {
+    animation-delay: 520ms;
+  }
+
+  /* Scroll-triggered reveal, driven by the <Reveal> client component. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal-visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Underline that grows from the left on hover. */
+  .link-underline {
+    @apply relative;
+  }
+
+  .link-underline::after {
+    @apply absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-current transition-transform duration-300 ease-out;
+    content: '';
+  }
+
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    @apply scale-x-100;
+  }
+
+  /*
+   * Clears the iOS home indicator without losing the element's own bottom
+   * padding — the inset resolves to 0px on every device that has no notch.
+   */
+  .pb-safe-3 {
+    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .pb-safe-6 {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Full viewport height that accounts for mobile browser chrome. */
+  .min-h-screen-dvh {
+    min-height: 100vh;
+    min-height: 100dvh;
   }
 }

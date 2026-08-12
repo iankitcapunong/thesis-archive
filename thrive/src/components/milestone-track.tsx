@@ -28,7 +28,7 @@ export function MilestoneTrack({
     <div>
       <ProgressBar percent={percent} label={`${approved.length} of ${STAGES.length} milestones approved`} />
 
-      <ol className="mt-6 space-y-0">
+      <ol className="stagger mt-6 space-y-0">
         {ordered.map((milestone, index) => {
           const isCurrent = milestone.stageKey === currentStage;
           const isApproved = milestone.status === 'APPROVED';
@@ -40,9 +40,10 @@ export function MilestoneTrack({
               <div className="flex flex-col items-center">
                 <span
                   className={clsx(
-                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ring-1',
+                    'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold ring-1 transition duration-300',
                     isApproved && 'bg-csu-600 text-white ring-csu-600',
-                    isCurrent && !isApproved && 'bg-white text-csu-700 ring-2 ring-csu-500',
+                    // The stage in play gets a slow halo so the eye lands on it first.
+                    isCurrent && !isApproved && 'animate-pulse-ring bg-white text-csu-700 ring-2 ring-csu-500',
                     isLocked && 'bg-slate-100 text-slate-400 ring-slate-200',
                     !isApproved && !isCurrent && !isLocked && 'bg-white text-slate-500 ring-slate-300',
                   )}
