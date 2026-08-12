@@ -39,7 +39,6 @@ export type Analytics = {
     upcomingDefenses: number;
   };
   programBreakdown: { program: string; total: number; completed: number }[];
-  recentActivity: { id: string; summary: string; action: string; createdAt: Date; actor: string | null }[];
 };
 
 const STALE_REVIEW_DAYS = 7;
@@ -50,7 +49,7 @@ export async function buildAnalytics(user: SessionUser): Promise<Analytics> {
   const staleCutoff = new Date(Date.now() - STALE_REVIEW_DAYS * 24 * 60 * 60 * 1000);
   const stalledCutoff = new Date(Date.now() - STALLED_DAYS * 24 * 60 * 60 * 1000);
 
-  const [theses, advisers, panelists, documents, auditLogs, upcomingDefenses] = await Promise.all([
+  const [theses, advisers, panelists, documents, upcomingDefenses] = await Promise.all([
     prisma.thesisProject.findMany({
       where: scope,
       select: {
@@ -99,11 +98,6 @@ export async function buildAnalytics(user: SessionUser): Promise<Analytics> {
       by: ['status'],
       _count: { _all: true },
       where: { isCurrent: true, thesis: scope },
-    }),
-    prisma.auditLog.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 12,
-      include: { actor: { select: { firstName: true, lastName: true } } },
     }),
     prisma.defenseSchedule.count({
       where: { status: 'SCHEDULED', scheduledAt: { gte: new Date() }, thesis: scope },
@@ -182,12 +176,5 @@ export async function buildAnalytics(user: SessionUser): Promise<Analytics> {
     programBreakdown: [...programMap.entries()]
       .map(([program, v]) => ({ program, ...v }))
       .sort((a, b) => b.total - a.total),
-    recentActivity: auditLogs.map((log) => ({
-      id: log.id,
-      summary: log.summary,
-      action: log.action,
-      createdAt: log.createdAt,
-      actor: log.actor ? `${log.actor.firstName} ${log.actor.lastName}` : null,
-    })),
   };
 }

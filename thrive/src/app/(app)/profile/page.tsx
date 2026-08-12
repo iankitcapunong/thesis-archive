@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { permissionsFor, PERMISSIONS } from '@/lib/rbac';
-import { Card, CardHeader, PageHeader, Badge, StatusPill, formatDateTime } from '@/components/ui';
+import { Card, CardHeader, PageHeader, StatusPill, formatDateTime } from '@/components/ui';
 import { ROLE_LABELS, type Role } from '@/lib/constants';
 
 export const metadata: Metadata = { title: 'My Profile' };
@@ -16,31 +16,24 @@ export default async function ProfilePage() {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
 
-  const [profile, recentActivity] = await Promise.all([
-    prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        firstName: true,
-        lastName: true,
-        email: true,
-        role: true,
-        status: true,
-        schoolId: true,
-        program: true,
-        department: true,
-        college: true,
-        contactNo: true,
-        advisingLoad: true,
-        lastLoginAt: true,
-        createdAt: true,
-      },
-    }),
-    prisma.auditLog.findMany({
-      where: { actorId: user.id },
-      orderBy: { createdAt: 'desc' },
-      take: 10,
-    }),
-  ]);
+  const profile = await prisma.user.findUnique({
+    where: { id: user.id },
+    select: {
+      firstName: true,
+      lastName: true,
+      email: true,
+      role: true,
+      status: true,
+      schoolId: true,
+      program: true,
+      department: true,
+      college: true,
+      contactNo: true,
+      advisingLoad: true,
+      lastLoginAt: true,
+      createdAt: true,
+    },
+  });
 
   if (!profile) redirect('/login');
 
@@ -109,22 +102,6 @@ export default async function ProfilePage() {
                 ))}
               </ul>
             </div>
-          </Card>
-
-          <Card>
-            <CardHeader title="My recent activity" />
-            <ul className="divide-y divide-slate-100">
-              {recentActivity.length === 0 && (
-                <li className="px-5 py-6 text-center text-sm text-slate-500">No recorded activity yet.</li>
-              )}
-              {recentActivity.map((entry) => (
-                <li key={entry.id} className="px-5 py-3">
-                  <Badge tone="neutral">{entry.action.replace(/_/g, ' ').toLowerCase()}</Badge>
-                  <p className="mt-1.5 text-sm text-slate-700">{entry.summary}</p>
-                  <p className="mt-0.5 text-xs text-slate-400">{formatDateTime(entry.createdAt)}</p>
-                </li>
-              ))}
-            </ul>
           </Card>
         </div>
       </div>

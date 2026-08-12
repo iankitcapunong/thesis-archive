@@ -27,7 +27,7 @@ export default async function OversightPage() {
   if (!can(user.role, 'analytics.view')) redirect('/unauthorized');
 
   const analytics = await buildAnalytics(user);
-  const { totals, stageDistribution, adviserWorkload, panelWorkload, documentStatus, compliance, programBreakdown, recentActivity } =
+  const { totals, stageDistribution, adviserWorkload, panelWorkload, documentStatus, compliance, programBreakdown } =
     analytics;
 
   const maxStage = Math.max(1, ...stageDistribution.map((s) => s.count));
@@ -214,7 +214,7 @@ export default async function OversightPage() {
         </Card>
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+      <div className="mt-6">
         <Card>
           <CardHeader title="Completion by program" />
           <div className="table-wrap">
@@ -246,21 +246,6 @@ export default async function OversightPage() {
               </tbody>
             </table>
           </div>
-        </Card>
-
-        <Card>
-          <CardHeader title="Recent system activity" />
-          <ul className="divide-y divide-slate-100">
-            {recentActivity.length === 0 && <EmptyState title="No recorded activity" />}
-            {recentActivity.map((entry) => (
-              <li key={entry.id} className="px-5 py-3">
-                <p className="text-sm text-slate-700">{entry.summary}</p>
-                <p className="mt-0.5 text-xs text-slate-400">
-                  {entry.actor ?? 'System'} · {relativeTime(entry.createdAt)}
-                </p>
-              </li>
-            ))}
-          </ul>
         </Card>
       </div>
 

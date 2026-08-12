@@ -15,7 +15,10 @@
       "PowerShell($r = Invoke-WebRequest -Uri \"http://localhost:3000/\" -UseBasicParsing -TimeoutSec 120; $h = $r.Content; foreach \\($t in @\\('animate-fade-up','anim-delay-100','animate-float','stagger','card-interactive','backdrop-blur-md','reveal'\\)\\) { if \\($h -match [regex]::Escape\\($t\\)\\) { \"FOUND $t\" } else { \"MISSING $t\" } })",
       "Bash(node -e \"console.log\\('sharp', require\\('sharp/package.json'\\).version\\)\")",
       "PowerShell(try { $r = Invoke-WebRequest -Uri \"http://localhost:3000/image.png\" -UseBasicParsing -TimeoutSec 120; \"status $\\($r.StatusCode\\)  type=$\\($r.Headers['Content-Type']\\)  {0:N0} KB\" -f \\($r.RawContentLength/1KB\\) } catch { \"ERR $\\($_.Exception.Response.StatusCode.value__\\)\" })",
-      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name = 'node.exe'\" | Select-Object ProcessId, @{n='cmd';e={ $_.CommandLine.Substring\\(0, [Math]::Min\\(120, $_.CommandLine.Length\\)\\) }} | Format-Table -AutoSize -Wrap)"
+      "PowerShell(Get-CimInstance Win32_Process -Filter \"Name = 'node.exe'\" | Select-Object ProcessId, @{n='cmd';e={ $_.CommandLine.Substring\\(0, [Math]::Min\\(120, $_.CommandLine.Length\\)\\) }} | Format-Table -AutoSize -Wrap)",
+      "Bash(awk '/^model User /,/^}/' prisma/schema.prisma)",
+      "Bash(awk '/AUDIT_ACTIONS = \\\\{/,/\\\\} as const/' src/lib/audit.ts)",
+      "Bash(npx tsx *)"
     ]
   }
 }

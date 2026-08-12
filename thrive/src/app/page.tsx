@@ -1,18 +1,15 @@
 /**
  * Public landing page (SRS Figure 6.1).
- * Publicly visible archive entries are surfaced here; everything else requires
- * authentication (Appendix 6.1 — Public column).
+ * Static by design — it reads no records, so nothing behind the authentication
+ * boundary can leak through it (Appendix 6.1 — Public column). The archive has
+ * its own public page for browsing published work.
  */
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { prisma } from '@/lib/prisma';
-import { Card, formatDate } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { Logo } from '@/components/logo';
 import { Reveal } from '@/components/reveal';
-import { CountUp } from '@/components/count-up';
-
-export const dynamic = 'force-dynamic';
 
 const CAPABILITIES = [
   {
@@ -41,25 +38,7 @@ const CAPABILITIES = [
   },
 ];
 
-export default async function LandingPage() {
-  const [published, stats] = await Promise.all([
-    prisma.archivedThesis.findMany({
-      where: { visibility: 'PUBLIC' },
-      include: {
-        thesis: { select: { title: true, program: true, academicYear: true, department: true } },
-      },
-      orderBy: { archivedAt: 'desc' },
-      take: 6,
-    }),
-    Promise.all([
-      prisma.thesisProject.count({ where: { status: 'ACTIVE' } }),
-      prisma.user.count({ where: { role: 'FACULTY_ADVISER' } }),
-      prisma.archivedThesis.count(),
-    ]),
-  ]);
-
-  const [activeTheses, advisers, archived] = stats;
-
+export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white">
       <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/85 backdrop-blur-md">
@@ -70,8 +49,11 @@ export default async function LandingPage() {
               <span className="xs:hidden">Archive</span>
               <span className="hidden xs:inline">Thesis archive</span>
             </Link>
-            <Link href="/login" className="btn-primary btn-sm whitespace-nowrap">
+            <Link href="/login" className="btn-ghost btn-sm whitespace-nowrap">
               Sign in
+            </Link>
+            <Link href="/signup" className="btn-primary btn-sm whitespace-nowrap">
+              Sign up
             </Link>
           </nav>
         </div>
@@ -97,7 +79,7 @@ export default async function LandingPage() {
           {/*
             Scrims. The banner already carries its own green wash, so these stay
             light — just enough to hold white text at 4.5:1 (WCAG 1.4.3). The
-            second one guards the stat row, which can otherwise land on the pale
+            second guards the lower half, which can otherwise land on the pale
             wave at the foot of the artwork once the image is cropped to fit.
           */}
           <div
@@ -125,32 +107,12 @@ export default async function LandingPage() {
                 Sign in to THRIVE
               </Link>
               <Link
-                href="/archive/public"
+                href="/signup"
                 className="btn border border-white/40 px-5 py-2.5 font-semibold text-white hover:border-white/70 hover:bg-white/10"
               >
-                Browse published theses
+                Create a student account
               </Link>
             </div>
-
-            {/* Animated as one block so it lands after the headline cascade;
-                a nested stagger would run under the parent's own fade. */}
-            <dl className="anim-delay-300 mt-12 grid max-w-2xl animate-fade-up grid-cols-1 gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-6">
-              {[
-                ['Active thesis projects', activeTheses],
-                ['Faculty advisers', advisers],
-                ['Archived manuscripts', archived],
-              ].map(([label, value]) => (
-                <div
-                  key={label as string}
-                  className="rounded-xl bg-white/10 p-4 ring-1 ring-white/15 transition duration-300 hover:bg-white/15 hover:ring-white/30"
-                >
-                  <dt className="text-xs font-medium uppercase tracking-wide text-csu-100">{label}</dt>
-                  <dd className="mt-1 text-2xl font-semibold sm:text-3xl">
-                    <CountUp value={value as number} />
-                  </dd>
-                </div>
-              ))}
-            </dl>
           </div>
         </section>
 
@@ -173,37 +135,25 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {published.length > 0 && (
-          <section className="border-t border-slate-200 bg-slate-50">
-            <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 sm:py-16">
-              <Reveal className="flex flex-wrap items-end justify-between gap-3">
-                <div>
-                  <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">Recently published research</h2>
-                  <p className="mt-2 text-sm text-slate-600 sm:text-base">
-                    Completed undergraduate theses released for public reference.
-                  </p>
-                </div>
-                <Link href="/archive/public" className="btn-secondary btn-sm">
-                  View full archive
+        <section className="border-t border-slate-200 bg-slate-50">
+          <div className="mx-auto max-w-6xl px-4 py-14 text-center sm:px-6 sm:py-16">
+            <Reveal>
+              <h2 className="text-xl font-semibold text-slate-900 sm:text-2xl">Ready to begin your thesis?</h2>
+              <p className="mx-auto mt-2 max-w-xl text-sm text-slate-600 sm:text-base">
+                Register with your Caraga State University email address to open your milestone plan and request a
+                faculty adviser.
+              </p>
+              <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+                <Link href="/signup" className="btn-primary px-5 py-2.5">
+                  Create a student account
                 </Link>
-              </Reveal>
-              <div className="mt-8 grid gap-4 sm:gap-5 md:grid-cols-2">
-                {published.map((entry, index) => (
-                  <Reveal key={entry.id} delay={index * 70}>
-                    <Card className="card-interactive h-full p-5">
-                      <p className="text-xs font-medium uppercase tracking-wide text-csu-700">
-                        {entry.thesis.program} · AY {entry.thesis.academicYear}
-                      </p>
-                      <h3 className="mt-2 font-semibold leading-snug text-slate-900">{entry.thesis.title}</h3>
-                      <p className="mt-3 text-sm text-slate-600">{entry.citation}</p>
-                      <p className="mt-3 text-xs text-slate-500">Archived {formatDate(entry.archivedAt)}</p>
-                    </Card>
-                  </Reveal>
-                ))}
+                <Link href="/archive/public" className="btn-secondary px-5 py-2.5">
+                  Browse the thesis archive
+                </Link>
               </div>
-            </div>
-          </section>
-        )}
+            </Reveal>
+          </div>
+        </section>
       </main>
 
       <footer className="border-t border-slate-200 bg-white">

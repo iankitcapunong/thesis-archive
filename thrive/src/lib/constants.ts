@@ -115,6 +115,17 @@ export const UPLOAD_RULES = {
   allowedExtensions: ['.pdf', '.doc', '.docx', '.ppt', '.pptx', '.zip'] as string[],
 };
 
+/**
+ * Self-registration is limited to institutional addresses (FR-06). A Caraga
+ * State University Google Workspace account is the same address, so signing up
+ * with the university's Gmail satisfies this without a separate path.
+ */
+export const INSTITUTIONAL_EMAIL_DOMAIN = 'carsu.edu.ph';
+
+export function isInstitutionalEmail(email: string): boolean {
+  return email.trim().toLowerCase().endsWith(`@${INSTITUTIONAL_EMAIL_DOMAIN}`);
+}
+
 export const ACADEMIC_PROGRAMS = [
   'BS Computer Science',
   'BS Information Technology',

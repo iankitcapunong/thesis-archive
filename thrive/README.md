@@ -10,35 +10,33 @@ An intelligent academic governance platform for undergraduate thesis management 
 ```bash
 cd thrive
 npm install
-npm run setup      # generate Prisma client, create the database, load demo data
+npm run setup      # generate Prisma client, create the database, bootstrap the administrator
 npm run dev        # http://localhost:3000
 ```
 
-`npm run setup` is idempotent — rerun it any time to return to a clean demo dataset.
+`npm run setup` creates one administrator account and nothing else — there is no demo
+dataset. The seed prints a generated password once; store it, then change it after
+signing in. Set `ADMIN_EMAIL` / `ADMIN_PASSWORD` in `.env` to choose your own.
 
-### Demo accounts
+Rerunning the seed is safe: it never deletes records and never overwrites an existing
+administrator's password.
 
-All demo accounts use the password **`Thrive@2027`**.
+### Getting accounts into the system
 
-| Role | Email | What you can do |
-|---|---|---|
-| Student | `student@carsu.edu.ph` | Register a thesis, request an adviser, submit and revise documents, track progress |
-| Faculty Adviser | `adviser@carsu.edu.ph` | Respond to adviser requests, review submissions, approve milestones |
-| Panel Member | `panel@carsu.edu.ph` | Evaluate assigned groups, view defense commitments |
-| Research Coordinator | `coordinator@carsu.edu.ph` | Schedule defenses, assign panels, monitor compliance, generate reports |
-| Department Chair | `chair@carsu.edu.ph` | Department-scoped analytics and reports |
-| College Administrator | `dean@carsu.edu.ph` | College-scoped analytics and reports |
-| Administrator | `admin@carsu.edu.ph` | Accounts, roles, permissions, audit trail |
+| Account type | How it is created |
+|---|---|
+| **Student** | Self-registration at `/signup`, restricted to `@carsu.edu.ph` addresses. A Caraga State University Google Workspace account is the same address, so it qualifies. |
+| **Faculty Adviser, Panel Member, Coordinator, Chair, College Admin, Administrator** | Provisioned by an administrator in *Admin → User Management* (FR-06, FR-07). These roles can never be self-registered. |
 
-### A five-minute tour
+### A first walk-through
 
-1. Sign in as **student** — see the milestone track, a document returned for revision, and the current-stage requirements.
-2. Open the thesis workspace and submit a revision — it is recorded as a new version, not an overwrite.
-3. Sign in as **adviser** → *Review Queue* — approve or return the submission with remarks.
-4. Still as the adviser, open the thesis and try **Approve milestone** — it stays blocked, listing exactly which requirements are outstanding.
-5. Approve the remaining documents, then advance — the project moves to the next stage and everyone is notified.
-6. Sign in as **coordinator** — schedule a defense, then check *Analytics* and download a CSV report.
-7. Sign in as **admin** → *Audit Trail* — every step above is recorded with actor, action and timestamp.
+1. Run `npm run setup` and sign in with the administrator account it prints.
+2. In *Admin → User Management*, create a faculty adviser and a panel member.
+3. Register a student at `/signup` using an `@carsu.edu.ph` address, then register a thesis project.
+4. Request the adviser, and accept the request from the adviser's account.
+5. Submit a document, return it for revision as the adviser, then resubmit — it is recorded as a new version, not an overwrite.
+6. Try **Approve milestone** before the requirements are met — it stays blocked, listing exactly what is outstanding.
+7. Sign in as the administrator → *Audit Trail* — every step above is recorded with actor, action and timestamp.
 
 ---
 
@@ -174,10 +172,11 @@ No application code changes are required. See [`docs/DEPLOYMENT.md`](docs/DEPLOY
 
 | Command | Description |
 |---|---|
-| `npm run setup` | Generate client, create database, seed demo data |
+| `npm run setup` | Generate client, create database, bootstrap the administrator |
 | `npm run dev` | Development server |
 | `npm run build` / `npm start` | Production build and serve |
-| `npm run db:reset` | Wipe and reseed |
+| `npm run db:seed` | Bootstrap the administrator (safe to rerun; never deletes) |
+| `npm run db:reset` | **Destroys all data**, recreates the schema, re-bootstraps the administrator |
 | `npm run db:studio` | Browse the database in Prisma Studio |
 
 ---

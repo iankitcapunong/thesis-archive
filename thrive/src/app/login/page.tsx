@@ -7,16 +7,6 @@ import { Logo } from '@/components/logo';
 
 export const metadata: Metadata = { title: 'Sign in' };
 
-const DEMO_ACCOUNTS = [
-  ['Student', 'student@carsu.edu.ph'],
-  ['Faculty Adviser', 'adviser@carsu.edu.ph'],
-  ['Panel Member', 'panel@carsu.edu.ph'],
-  ['Research Coordinator', 'coordinator@carsu.edu.ph'],
-  ['Department Chair', 'chair@carsu.edu.ph'],
-  ['College Administrator', 'dean@carsu.edu.ph'],
-  ['Administrator', 'admin@carsu.edu.ph'],
-];
-
 export default async function LoginPage({
   searchParams,
 }: {
@@ -47,18 +37,17 @@ export default async function LoginPage({
           </div>
 
           <div className="anim-delay-200 mt-8 animate-fade-up rounded-xl bg-white/10 p-4 ring-1 ring-white/15 sm:mt-10 sm:p-5 lg:mt-16">
-            <p className="text-xs font-semibold uppercase tracking-wide text-csu-100">Demo accounts</p>
-            <ul className="mt-3 space-y-1.5 text-sm">
-              {DEMO_ACCOUNTS.map(([role, email]) => (
-                <li key={email} className="flex flex-wrap justify-between gap-x-4 gap-y-0.5">
-                  <span className="text-csu-100">{role}</span>
-                  <span className="break-all font-mono text-[13px]">{email}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-3 border-t border-white/15 pt-3 text-sm">
-              Password for all demo accounts: <span className="font-mono font-semibold">Thrive@2027</span>
+            <p className="text-xs font-semibold uppercase tracking-wide text-csu-100">New to THRIVE?</p>
+            <p className="mt-2 text-sm text-csu-50">
+              Students can register with a Caraga State University email address. Adviser, panel, coordinator and
+              administrator accounts are issued by the college.
             </p>
+            <Link
+              href="/signup"
+              className="btn mt-4 border border-white/40 px-4 py-2 font-semibold text-white hover:border-white/70 hover:bg-white/10"
+            >
+              Create a student account
+            </Link>
           </div>
         </div>
       </div>
@@ -78,6 +67,13 @@ export default async function LoginPage({
           <div className="card mt-6 p-5 sm:p-6">
             <LoginForm nextPath={params.next} />
           </div>
+
+          <p className="mt-5 text-center text-sm text-slate-600">
+            No account yet?{' '}
+            <Link href="/signup" className="link-underline font-medium text-csu-700 hover:text-csu-800">
+              Create a student account
+            </Link>
+          </p>
 
           <p className="mt-6 text-center text-sm text-slate-500">
             <Link href="/" className="link-underline hover:text-slate-700">

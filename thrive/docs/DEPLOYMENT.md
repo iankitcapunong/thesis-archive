@@ -98,21 +98,22 @@ npm run build
 npm start                # listens on PORT, default 3000
 ```
 
-Seed **only** on a fresh installation, and edit `prisma/seed.ts` first — the
-shipped seed is demo data and clears existing tables.
-
-For the first real administrator, prefer a one-off script over the demo seed:
+Create the first administrator with the seed. It carries no demo data, deletes
+nothing, and is safe to rerun — an existing administrator is left untouched:
 
 ```bash
-node -e "
-const {PrismaClient}=require('@prisma/client');const bcrypt=require('bcryptjs');
-new PrismaClient().user.create({data:{
-  email:'admin@carsu.edu.ph', firstName:'System', lastName:'Administrator',
-  role:'ADMIN', status:'ACTIVE', college:'CCIS',
-  passwordHash: bcrypt.hashSync(process.env.INITIAL_PASSWORD, 10),
-}}).then(u=>console.log('created', u.email));
-"
+ADMIN_EMAIL="admin@carsu.edu.ph" ADMIN_PASSWORD="<a strong password>" npm run db:seed
 ```
+
+Omit `ADMIN_PASSWORD` to have a strong one generated and printed once.
+
+Every other account is created from inside the application: students register
+themselves at `/signup` (restricted to `@carsu.edu.ph`), and all privileged
+roles are provisioned by an administrator in *Admin → User Management*.
+
+> `npm run db:reset` runs `prisma db push --force-reset` and **irreversibly
+> destroys every row**. It is a development convenience — never run it against
+> an institutional database.
 
 ---
 
@@ -209,7 +210,7 @@ a restore before go-live.
 - [ ] `DATABASE_URL` points at PostgreSQL, not SQLite
 - [ ] `STORAGE_DIR` is outside the web root and backed up
 - [ ] HTTPS enforced; HTTP redirects to HTTPS
-- [ ] Demo accounts removed or deactivated
+- [ ] Bootstrap administrator password changed from the generated one
 - [ ] At least one real administrator account exists and has been tested
 - [ ] `client_max_body_size` exceeds the 20 MB application upload limit
 - [ ] Nightly backup job installed and a restore rehearsed

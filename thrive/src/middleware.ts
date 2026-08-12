@@ -17,7 +17,7 @@ import { mayEnterRoute, isKnownRoute } from '@/lib/rbac';
 
 const SESSION_COOKIE = 'thrive_session';
 
-const PUBLIC_PATHS = ['/', '/login', '/forgot-password', '/reset-password', '/archive/public', '/unauthorized'];
+const PUBLIC_PATHS = ['/', '/login', '/signup', '/forgot-password', '/reset-password', '/archive/public', '/unauthorized'];
 
 function isPublic(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
@@ -39,8 +39,8 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const role = token ? await readRole(token) : null;
 
-  // Signed-in users should not sit on the login screen.
-  if (role && (pathname === '/login' || pathname === '/forgot-password')) {
+  // Signed-in users should not sit on the login or registration screens.
+  if (role && (pathname === '/login' || pathname === '/signup' || pathname === '/forgot-password')) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
