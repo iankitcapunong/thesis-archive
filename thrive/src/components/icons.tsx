@@ -41,6 +41,12 @@ export const ICONS: Record<string, (props: IconProps) => JSX.Element> = {
   lock: (p) => <P {...p} d="M6 10V8a6 6 0 1 1 12 0v2M5 10h14a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z" />,
   clock: (p) => <P {...p} d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM12 7.5V12l3 2" />,
   warning: (p) => <P {...p} d="M12 9v4.5M12 17h.01M10.3 3.9 2.6 17.1A2 2 0 0 0 4.3 20h15.4a2 2 0 0 0 1.7-2.9L13.7 3.9a2 2 0 0 0-3.4 0Z" />,
+  globe: (p) => (
+    <P
+      {...p}
+      d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18ZM3.3 9h17.4M3.3 15h17.4M12 3a13.5 13.5 0 0 1 0 18M12 3a13.5 13.5 0 0 0 0 18"
+    />
+  ),
 };
 
 export function Icon({ name, className }: { name: string; className?: string }) {

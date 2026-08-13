@@ -270,4 +270,22 @@
     min-height: 100vh;
     min-height: 100dvh;
   }
+
+  /*
+   * Hero height: whatever the sticky header leaves of the first screen, so the
+   * section below it never peeks above the fold. The subtrahend is the header's
+   * own height — 36px of content (the logo lockup) plus its py-3 and 1px
+   * bottom border, growing to py-4 from the sm breakpoint up.
+   */
+  .min-h-hero {
+    min-height: calc(100vh - 61px);
+    min-height: calc(100dvh - 61px);
+  }
+
+  @media (min-width: 640px) {
+    .min-h-hero {
+      min-height: calc(100vh - 69px);
+      min-height: calc(100dvh - 69px);
+    }
+  }
 }
